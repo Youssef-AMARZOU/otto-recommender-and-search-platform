@@ -1,0 +1,35 @@
+retrieval:
+  covisitation:
+    min_co_occurrence: 2
+    top_n: 100
+  two_tower:
+    embedding_dim: 64
+    hidden_dims: [256, 128]
+    epochs: 5
+    batch_size: 4096
+    lr: 0.001
+  ann:
+    index_type: ivf_flat
+    nlist: 4096
+    nprobe: 64
+  lexical:
+    bm25:
+      k1: 1.5
+      b: 0.75
+  candidate_pool_size: 300
+
+ranking:
+  model: lightgbm
+  params:
+    objective: lambdarank
+    metric: ndcg
+    learning_rate: 0.05
+    num_leaves: 255
+    min_data_in_leaf: 200
+    feature_fraction: 0.8
+  train_events: [clicks, carts, orders]
+  objective_weights: [0.10, 0.25, 0.65]
+
+serving:
+  redis_ttl_seconds: 900
+  latency_budget_ms: 50

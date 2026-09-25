@@ -1,0 +1,15 @@
+split:
+  strategy: temporal
+  train_ratio: 0.8
+  time_key: timestamp
+
+metrics:
+  ks: [5, 10, 20, 50]
+  primary: recall@20
+
+otto:
+  k: 20
+  weights:
+    clicks: 0.10
+    carts: 0.25
+    orders: 0.65

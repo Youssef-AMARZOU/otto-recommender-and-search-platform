@@ -1,0 +1,9 @@
+project: otto_recommender_search
+registry: data/feast/registry.db
+provider: local
+repo:
+  path: src/otto_rec/features
+online_store:
+  type: redis
+  connection_string: localhost:6379
+entity_key_serialization_version: 3
