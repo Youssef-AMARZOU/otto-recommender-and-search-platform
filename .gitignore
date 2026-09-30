@@ -17,3 +17,7 @@ artifacts/
 *.log
 logs/
 .DS_Store
+
+# MLflow local sqlite tracking + legacy file store
+mlflow.db
+mlruns/

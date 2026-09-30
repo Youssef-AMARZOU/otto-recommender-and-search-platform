@@ -27,7 +27,6 @@ import lightgbm as lgb
 import numpy as np
 import pyarrow.parquet as pq
 
-from otto_rec.features.etl import connect
 
 FEATURE_COLUMNS = [
     "clicks_all", "carts_all", "orders_all", "total_all",
@@ -58,6 +57,8 @@ def prepare_training_frame(
     split = json.loads((processed / "split.json").read_text())
     threshold = split["threshold_min_ts"]
     started = time.perf_counter()
+    from otto_rec.features.etl import connect  # noqa: PLC0415 - duckdb is train-only
+
     con = connect(memory_limit=memory_limit, temp_dir=temp_dir)
     con.execute(f"CREATE VIEW events AS SELECT * FROM '{(processed / 'events.parquet').resolve().as_posix()}'")
     con.execute(f"CREATE VIEW sessions_meta AS SELECT * FROM '{(processed / 'sessions_meta.parquet').resolve().as_posix()}'")

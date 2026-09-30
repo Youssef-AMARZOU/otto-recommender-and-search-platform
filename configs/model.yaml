@@ -7,11 +7,11 @@ retrieval:
     hidden_dims: [256, 128]
     epochs: 5
     batch_size: 4096
-    lr: 0.001
+    lr: 0.01
   ann:
     index_type: ivf_flat
     nlist: 4096
-    nprobe: 64
+    nprobe: 512
   lexical:
     bm25:
       k1: 1.5

@@ -1,7 +1,7 @@
-.PHONY: setup compile test lint download etl covis popularity train eval ab pipeline serve up down
+.PHONY: setup compile test lint download etl covis popularity train eval ab two-tower ann pipeline mlflow-log drift serve up down
 
 setup:
-	pip install -r requirements.txt
+	pip install -r requirements-train.txt
 
 compile:
 	python -m compileall -q src dags scripts tests
@@ -27,6 +27,12 @@ popularity:
 train:
 	PYTHONPATH=src python -m otto_rec.ranking.train --processed data/processed --model-out models/ranker.txt
 
+two-tower:
+	PYTHONPATH=src python -m otto_rec.retrieval.two_tower --events data/processed/events.parquet --out models/two_tower
+
+ann: two-tower
+	PYTHONPATH=src python scripts/build_ann.py --model-dir models/two_tower --events data/processed/events.parquet --report reports/ann_quality.json
+
 eval:
 	PYTHONPATH=src python scripts/evaluate.py --processed data/processed --model models/ranker.txt --report reports/offline_eval.json --outcomes reports/session_outcomes.parquet
 
@@ -35,8 +41,14 @@ ab:
 
 pipeline: etl covis popularity train eval ab
 
+mlflow-log:
+	PYTHONPATH=src python scripts/log_mlflow.py
+
+drift:
+	PYTHONPATH=src python scripts/monitor_drift.py
+
 serve:
-	uvicorn otto_rec.serving.app:app --reload --port 8000
+	PYTHONPATH=src uvicorn otto_rec.serving.app:app --port 8000
 
 up:
 	docker compose up --build

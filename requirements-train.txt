@@ -1,0 +1,11 @@
+# Training, evaluation, monitoring and developer tooling.
+# The lean API image installs only requirements.txt (see Dockerfile).
+-r requirements.txt
+duckdb>=1.0
+scipy>=1.12
+torch>=2.3
+feast>=0.39
+mlflow>=2.14
+evidently>=0.7.2
+httpx>=0.27
+ruff>=0.5

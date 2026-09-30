@@ -1,0 +1,13 @@
+.git/
+.github/
+.venv/
+data/
+models/
+reports/
+logs/
+mlruns/
+mlflow.db
+__pycache__/
+*.pyc
+tests/
+dags/

@@ -6,7 +6,13 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      MODEL_VERSION: untrained
+      MODEL_VERSION: ${MODEL_VERSION:-local}
+      PROCESSED_DIR: /app/data/processed
+      MODEL_PATH: /app/models/ranker.txt
+      TWO_TOWER_DIR: /app/models/two_tower
+    volumes:
+      - ./data/processed:/app/data/processed
+      - ./models:/app/models
     depends_on:
       - redis
       - mlflow
@@ -17,7 +23,7 @@ services:
       - "6379:6379"
 
   mlflow:
-    image: mlflow/mlflow:v2.16.2
+    image: ghcr.io/mlflow/mlflow:v2.16.2
     command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlflow
     ports:
       - "5000:5000"
