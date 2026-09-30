@@ -15,4 +15,5 @@ reports/
 artifacts/
 
 *.log
+logs/
 .DS_Store

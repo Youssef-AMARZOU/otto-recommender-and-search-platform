@@ -2,3 +2,6 @@ line-length = 120
 
 [lint]
 select = ["E4", "E7", "E9", "F", "UP", "DTZ", "BLE", "S"]
+# S608: query strings interpolate operator-controlled local paths and typed
+# numeric parameters only; no external or untrusted input reaches SQL text.
+ignore = ["S608"]
