@@ -20,7 +20,7 @@ Two-stage e-commerce recommender + search platform: hybrid retrieval (co-visitat
 │   ├── ranking/               # LightGBM LambdaMART (M3)
 │   ├── evaluation/            # temporal split + IR metrics (implemented)
 │   ├── serving/               # FastAPI app + two-stage serving pipeline (M4)
-│   ├── experimentation/       # A/B assignment, power calc, CUPED (implemented)
+│   ├── experimentation/       # A/B assignment, power calc, CUPED, hypothesis test (Shapiro/t/MWU)
 │   └── monitoring/            # Evidently drift reports (M6)
 ├── scripts/                   # OTTO download, sample generator, eval, A/B replay
 ├── tests/                     # stdlib unittest
@@ -57,7 +57,7 @@ buckets, 16 merge partitions):
 | Co-visitation | 129,279,774 neighbour pairs over 1,854,438 items (882 MB) |
 | Ranker | LightGBM LambdaMART, valid NDCG@10 0.682 / NDCG@20 0.703 |
 | Offline eval (50k holdout) | weighted Recall@20: popularity 0.0024, covisitation 0.0681, **two-stage 0.0805**; latency p99 3.12 ms |
-| A/B replay | adequately powered (24,925/arm); hit20_clicks +0.32%, p=0.85 → inconclusive; latency guardrail passed |
+| A/B replay | adequately powered (24,925/arm); Shapiro rejects normality → Mann-Whitney U: hit20_clicks +0.32%, p=0.853 (CUPED p=0.876) → inconclusive; latency guardrail passed |
 
 Co-visitation is bucketed (session-hash build + item-hash, two-statement merge on fresh connections)
 because a single self-join over 216M events exceeds a 6 GB memory budget; `--buckets` and

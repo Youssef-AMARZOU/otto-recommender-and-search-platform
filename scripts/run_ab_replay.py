@@ -7,6 +7,9 @@ treatment the challenger (two-stage). The script reports:
 - power analysis: sessions per arm required to detect ``--mde`` at alpha 0.05
 - observed effect on the primary metric (default: clicks hit-rate@20),
   raw and CUPED-adjusted with session length as covariate
+- assumption-checked hypothesis test (Shapiro-Wilk normality -> independent
+  t-test / Mann-Whitney U, Levene homogeneity for the t-test variant), the
+  decision follows its p-value when scipy is available
 - guardrail: two-stage single-row scoring latency p99 vs. threshold
 - a ship / hold / inconclusive recommendation from those inputs
 """
@@ -102,6 +105,20 @@ def run_ab_replay(
     cuped_t = y_cuped[len(y_control):]
     z_cuped, p_cuped = welch_mean_test(cuped_c, cuped_t)
 
+    try:
+        from otto_rec.experimentation.hypothesis import ab_test
+
+        hypothesis = {
+            "raw": ab_test(y_control, y_treatment),
+            "cuped": ab_test(cuped_c, cuped_t),
+        }
+        decision_p = hypothesis["cuped"]["p_value"]
+    except ImportError:
+        hypothesis = {
+            "skipped": "scipy not installed; falling back to the analytic z-tests"
+        }
+        decision_p = p_cuped
+
     eval_report = json.loads(eval_report_path.read_text())
     latency_p99 = eval_report.get("latency_ms", {}).get("p99")
     guardrail_pass = latency_p99 is not None and latency_p99 <= latency_threshold_ms
@@ -111,9 +128,9 @@ def run_ab_replay(
 
     if not guardrail_pass:
         recommendation = "hold"
-    elif p_cuped < 0.05 and cuped_lift is not None and cuped_lift > 0:
+    elif decision_p < 0.05 and cuped_lift is not None and cuped_lift > 0:
         recommendation = "ship"
-    elif p_cuped < 0.05 and cuped_lift is not None and cuped_lift <= 0:
+    elif decision_p < 0.05 and cuped_lift is not None and cuped_lift <= 0:
         recommendation = "hold"
     else:
         recommendation = "inconclusive"
@@ -141,6 +158,7 @@ def run_ab_replay(
                 "z": round(z_cuped, 4),
                 "p_value": round(p_cuped, 5),
             },
+            "hypothesis": hypothesis,
         },
         "guardrails": {
             "scoring_latency_p99_ms": latency_p99,
