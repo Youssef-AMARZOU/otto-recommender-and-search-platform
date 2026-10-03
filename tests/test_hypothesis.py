@@ -5,12 +5,16 @@ from __future__ import annotations
 import importlib.util
 import unittest
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:  # CI runs stdlib-only; the class below skips
+    np = None  # type: ignore[assignment]
 
+_HAS_NUMPY = np is not None
 _HAS_SCIPY = importlib.util.find_spec("scipy") is not None
 
 
-@unittest.skipUnless(_HAS_SCIPY, "scipy required")
+@unittest.skipUnless(_HAS_NUMPY and _HAS_SCIPY, "numpy+scipy required")
 class AbTestTest(unittest.TestCase):
     def test_normal_shift_selects_t_test_and_rejects(self) -> None:
         from otto_rec.experimentation.hypothesis import ab_test
