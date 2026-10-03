@@ -1,8 +1,10 @@
-# OTTO Recommender and Search Platform
+# Relevio
+
+*Two-stage e-commerce recommender + search platform built on the public OTTO dataset.*
 
 [2026-10-01]
 
-![CI](https://github.com/Youssef-AMARZOU/otto-recommender-and-search-platform/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Youssef-AMARZOU/Relevio/actions/workflows/ci.yml/badge.svg)
 
 An end-to-end e-commerce **recommender + search platform** built on the public OTTO
 dataset (216.7M events, 12.9M sessions). It combines **hybrid candidate retrieval**
@@ -505,7 +507,7 @@ Registry whenever **CI completes successfully on `main`** (also on manual
 | Cache | GitHub Actions layer cache (`cache-from/to: type=gha`) |
 | Permissions | `contents: read`, `packages: write` |
 
-Pull it with `docker pull ghcr.io/youssef-amarzou/otto-recommender-and-search-platform:latest`.
+Pull it with `docker pull ghcr.io/youssef-amarzou/relevio:latest`.
 
 ---
 
