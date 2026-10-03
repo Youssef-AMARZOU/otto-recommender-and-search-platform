@@ -11,6 +11,7 @@ Outputs reports/kaggle_ab_report.json (project) and prints a markdown draft.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ import pandas as pd
 
 from otto_rec.experimentation.hypothesis import ab_test
 
-DATA = Path(r"C:\Users\youss\AppData\Local\Temp\opencode\abdata\ab_testing.xlsx")
+DEFAULT_DATA = Path("data/kaggle/ab_testing.xlsx")
 OUT_JSON = Path("reports/kaggle_ab_report.json")
 
 METRICS = [
@@ -33,8 +34,21 @@ METRICS = [
 
 
 def main() -> int:
-    control = pd.read_excel(DATA, sheet_name="Control Group")
-    test = pd.read_excel(DATA, sheet_name="Test Group")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--data",
+        type=Path,
+        default=DEFAULT_DATA,
+        help="path to the Kaggle ab_testing.xlsx "
+        "(kaggle datasets download -d erolcoskun/facebook-bidding-ab-test)",
+    )
+    args = parser.parse_args()
+    data: Path = args.data
+    if not data.is_file():
+        parser.error(f"dataset not found: {data}")
+
+    control = pd.read_excel(data, sheet_name="Control Group")
+    test = pd.read_excel(data, sheet_name="Test Group")
 
     for frame in (control, test):
         frame["Conversion Rate"] = frame["Purchase"] / frame["Click"] * 100
@@ -42,7 +56,7 @@ def main() -> int:
 
     report: dict = {
         "dataset": {
-            "path": str(DATA),
+            "path": str(data),
             "control_arm": "maximum bidding (Control Group)",
             "treatment_arm": "average bidding (Test Group)",
             "period": "1 month of daily aggregates",
