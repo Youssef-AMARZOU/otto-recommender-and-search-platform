@@ -129,7 +129,7 @@ flowchart LR
 ├── docker-compose.yml         # api + redis + mlflow (+ airflow via profile)
 ├── Dockerfile                 # serving image (python:3.12-slim + libgomp1)
 ├── Makefile                   # one command per stage
-└── .github/workflows/ci.yml   # ruff + compileall + unit tests
+└── .github/workflows/         # ci.yml (lint+tests), cd.yml (image publish)
 ```
 
 ## Module map
@@ -490,6 +490,22 @@ Logs params/metrics/model to `sqlite:///mlflow.db` (override with
 | Tests | `PYTHONPATH=src python -m unittest discover -s tests -v` |
 
 Runs on every push to `main` and on pull requests (ubuntu, Python 3.12).
+
+### CD (GitHub Actions)
+
+`.github/workflows/cd.yml` publishes the serving image to GitHub Container
+Registry whenever **CI completes successfully on `main`** (also on manual
+`workflow_dispatch`):
+
+| Aspect | Value |
+|---|---|
+| Trigger | `workflow_run` on green CI (branch `main`) + manual dispatch |
+| Registry | `ghcr.io/<owner>/<repo>` (authenticated with the built-in `GITHUB_TOKEN`) |
+| Tags | `latest`, `main`, `<short-sha>` |
+| Cache | GitHub Actions layer cache (`cache-from/to: type=gha`) |
+| Permissions | `contents: read`, `packages: write` |
+
+Pull it with `docker pull ghcr.io/youssef-amarzou/otto-recommender-and-search-platform:latest`.
 
 ---
 
